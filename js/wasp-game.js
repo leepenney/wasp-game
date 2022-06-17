@@ -1,13 +1,41 @@
 const getCurrentPoints = (el) => {
-    return parseInt(el.innerHTML);
+    return parseInt(el.getAttribute('value'));
 }
 
 const getDamageValue = (el) => {
-    return parseInt(el.dataset.damage);
+    return parseInt(el.parentElement.dataset.damage);
 }
 
 const getWaspType = (el) => {
     return el.dataset.type;
+}
+
+const isHitFatal = (el) => {
+    return (
+        (getCurrentPoints(el) - getDamageValue(el)) <= 0
+    )
+}
+
+const calculateNewHitPoints = (el) => {
+    return parseInt(getCurrentPoints(el) - getDamageValue(el));
+}
+
+const updateHitPoints = (el, setClass = 'splat') => {
+    try {
+        el.setAttribute('value', calculateNewHitPoints(el));
+        el.parentElement.classList.add(setClass);
+    } catch(e) {
+        console.log('error updating hit points')
+        return false;
+    }
+    return true;
+};
+
+const killWasp = (el, waspType) => {
+    console.log(`here ${el}`);
+    updateHitPoints(el, 'dead');
+    if (waspType === 'queen') endGame();
+    return;
 }
 
 function hitWasp(e) {
@@ -20,11 +48,11 @@ function hitWasp(e) {
 
     const waspToHit = parseInt(Math.random() * waspsAlive.length);
     let selectedWasp = waspsAlive[waspToHit];
+    let selectedWaspPoints = selectedWasp.getElementsByTagName('meter')[0];
 
-    getCurrentPoints(selectedWasp) > 0 && getDamageValue(selectedWasp) <= getCurrentPoints(selectedWasp) ? 
-        (selectedWasp.innerHTML = getCurrentPoints(selectedWasp) -  getDamageValue(selectedWasp)) + (selectedWasp.classList.add('splat')): 
-        getWaspType(selectedWasp) === 'queen' ? selectedWasp.classList.add('dead') + (selectedWasp.innerHTML = '0') + endGame() : 
-        selectedWasp.classList.add('dead') + (selectedWasp.innerHTML = '0');
+    isHitFatal(selectedWaspPoints) === false ? updateHitPoints(selectedWaspPoints)
+        : getWaspType(selectedWasp) === 'queen' ? killWasp(selectedWaspPoints, 'queen') 
+        : killWasp(selectedWaspPoints, 'other');
     
     if (e.target.previousElementSibling.querySelectorAll('li:not(.dead)').length === 0) endGame();
 }
@@ -45,19 +73,19 @@ function renderWaspGame() {
             'type': 'queen',
             'qty': 1,
             'hitPoints': 80,
-            'damaga': 7
+            'damage': 7
         },
         {
             'type': 'worker',
             'qty': 5,
             'hitPoints': 68,
-            'damaga': 10
+            'damage': 10
         },
         {
             'type': 'drone',
             'qty': 8,
             'hitPoints': 60,
-            'damaga': 12
+            'damage': 12
         }
     ];
 
@@ -68,7 +96,11 @@ function renderWaspGame() {
                 return (function() {
                   let output = '';
                   for (let i = 0; i < waspType.qty; i++) {
-                    output = output + `<li data-type="${waspType.type}" data-damage="${waspType.damaga}">${waspType.hitPoints}</li>`;               
+                    output = output + `<li data-type="${waspType.type}" data-damage="${waspType.damage}">
+                            <meter min="0" max="${waspType.hitPoints}" value="${waspType.hitPoints}" 
+                                low="${waspType.damage+1}" high="${waspType.hitPoints-waspType.damage}" optimum="${waspType.hitPoints}">
+                            </meter>
+                        </li>`;               
                   }
                   return output;
                 })()
