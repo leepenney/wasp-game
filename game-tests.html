@@ -1,0 +1,134 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title></title>
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+
+<body>
+
+    <h1>Wasp Game Tests</h1>
+    <div id="test-results"></div>
+
+    <script src="js/wasp-game.js"></script>
+    <script>
+
+        // to test:
+        // -- generated list of wasps of the correct number and profiles (done)
+        // -- deducts the correct damage (done)
+        // -- doesn't keep deducting if the points hit zero (done)
+        // -- ends the game if the queen's points hit zero (as that is the end game either way) (done)
+
+        const testResults = [];
+
+        const logResult = (testName, testResult) => {
+            testResults.push(`${testName}: ${testResult}`);
+        }
+
+        const testCreateWasps = () => {
+            let result = false;
+            const exampleData = [
+                    {
+                        'type': 'queen',
+                        'qty': 1,
+                        'hitPoints': 80,
+                        'damage': 7
+                    }
+            ];
+            const expectedResult = 'queen:80:7:80';
+            
+            const response = createWasps(exampleData);
+            
+            if (typeof(response) == 'string') {
+                if (response === expectedResult) {
+                    result = true;
+                }
+            }
+            
+            logResult('createWasps', result ? 'pass' : `fail ${response} != ${expectedResult}`);
+        };
+
+        const testHitPointsCalculated = () => {
+            let result = false;
+            const exampleData = 'drone:60:12:60';
+            const expectedResult = 48;
+            const response = updateCurrentPoints(exampleData);
+
+            if (typeof(response) == 'number') {
+                if (response === expectedResult) {
+                    result = true;
+                }
+            }
+            
+            logResult('hitPointsCalculated', result ? 'pass' : `fail ${response} != ${expectedResult}`);
+        }
+
+        const testHitWasp = () => {
+            let result = false;
+            const exampleData = 'queen:80:7:80,worker:68:10:68,drone:60:12:60';
+            const expectedResult = [
+                'queen:80:7:73,worker:68:10:68,drone:60:12:60',
+                'queen:80:7:80,worker:68:10:58,drone:60:12:60',
+                'queen:80:7:80,worker:68:10:68,drone:60:12:48',
+            ];
+            const response = hitWasp(null, exampleData);
+
+            if (typeof(response) == 'string') {
+                if (expectedResult.includes(response)) {
+                    result = true;
+                }
+            }
+            
+            logResult('hitWasp', result ? 'pass' : `fail ${response} != one of ${expectedResult.join(', ')}`);
+        }
+
+        const testGameMechanics = () => {
+            let result = false;
+            const exampleData = [
+                    {
+                        'type': 'queen',
+                        'qty': 1,
+                        'hitPoints': 7,
+                        'damage': 7
+                    },
+                    {
+                        'type': 'drone',
+                        'qty': 1,
+                        'hitPoints': 12,
+                        'damage': 12
+                    }
+            ];
+            const expectedResult = 'game over';
+            
+            const wasps = createWasps(exampleData);
+            let response = hitWasp(null, wasps);
+            if (response.includes('queen')) {
+                response = hitWasp(null, wasps);
+            }
+
+            if (typeof(response) == 'string') {
+                if (response === expectedResult) {
+                    result = true;
+                }
+            }
+            
+            logResult('gameMechanics', result ? 'pass' : `fail ${response} != ${expectedResult}`);
+        }
+
+        const runTests = () => {
+            testCreateWasps();
+            testHitPointsCalculated();
+            testHitWasp();
+            testGameMechanics();
+            console.log(testResults);
+            document.getElementById('test-results').innerHTML = testResults.join("<br>");
+        }
+
+        runTests();
+
+    </script>
+
+</body>
+</html> 
