@@ -46,7 +46,7 @@ const hitWasp = (e, waspList = null) => {
 
     do {
         waspToHit = parseInt(Math.random() * currentSwarm.length);
-    } while (currentSwarm[waspToHit].split(':')[1] < 1);
+    } while (currentSwarm[waspToHit].split(':')[3] < 1);
 
     let newPoints = updateCurrentPoints(currentSwarm[waspToHit]);
 
@@ -69,9 +69,11 @@ const endGame = (e) => {
     if (e) {
         let button = document.getElementById(e.target.id);
         button.textContent = 'Game over';
+        button.setAttribute('disabled', 'disabled');
         button.removeEventListener('click', hitWasp);
         let resetButton = document.createElement('button');
         resetButton.innerText = 'Play again';
+        resetButton.style = 'display: block; margin: 1rem auto;';
         button.parentElement.appendChild(resetButton);
         resetButton.addEventListener('click', () => { renderWaspGame(`#${button.parentElement.id}`, 'replaceParent') }, true);
     }

@@ -125,6 +125,10 @@ h1 {
     background: orangered;
 }
 
+#wasp-game-container button:disabled {
+	  background: #ccc;
+}
+
 #wasp-game-container button svg {
     vertical-align: text-bottom;
 }
