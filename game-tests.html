@@ -105,7 +105,7 @@
             const wasps = createWasps(exampleData);
             let response = hitWasp(null, wasps);
             if (response.includes('queen')) {
-                response = hitWasp(null, wasps);
+                response = hitWasp(null, response);
             }
 
             if (typeof(response) == 'string') {

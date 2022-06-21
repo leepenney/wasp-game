@@ -46,7 +46,7 @@ const hitWasp = (e, waspList = null) => {
 
     do {
         waspToHit = parseInt(Math.random() * currentSwarm.length);
-    } while (currentSwarm[waspToHit].split(':')[3] < 1);
+    } while (parseInt(currentSwarm[waspToHit].split(':')[3]) < 1);
 
     let newPoints = updateCurrentPoints(currentSwarm[waspToHit]);
 
